@@ -3,15 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Cookie;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Hash;
-use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
-use App\Models\Categories;
+use App\Models\role;
 use Log;
 
-class CategoryController extends Controller
+class RoleController extends Controller
 {
     public function __construct()
     {
@@ -27,15 +23,15 @@ class CategoryController extends Controller
     public function list(Request $request)
     {
         try {
-            $getCategories = Categories::select('CATEGORY_ID AS categoryId', 'CATEGORY_NAME AS categoryName')->where('STATUS', 'ACTIVE')->orderBy('CREATED_DATE', 'DESC')->get();
+            $getRole = role::where('status', '1')->orderBy('created_on', 'DESC')->get();
 
             $responseArr = array(
-                "action" => "category",
+                "action" => "role",
                 "error" => 0,
                 "errorCode" => 100,
-                "message" => "category Detail",
+                "message" => "role Detail",
                 "status" => "success",
-                "categoryDetail" => $getCategories,
+                "categoryDetail" => $getRole,
             );
 
             return response()->json($responseArr);
@@ -61,8 +57,9 @@ class CategoryController extends Controller
     {
         try {
             $validationArr = array(
-                'categoryName' => 'required|string',
-                'description' => 'required|string'
+                'name' => 'required|string',
+                'order' => 'required|string',
+                 'link' => 'required|string'
             );
 
             $messageArr = [];
@@ -71,7 +68,7 @@ class CategoryController extends Controller
             if ($validator->fails()) {
                 $errors = $validator->errors();
                 return response()->json([
-                    "action" => "addCategory",
+                    "action" => "addRole",
                     "error" => 1,
                     "errorCode" => 104,
                     "message" => $errors->first(),
@@ -79,25 +76,24 @@ class CategoryController extends Controller
                 ]);
             } else {
                 $authDetail = auth()->user();
-                Categories::insert([
-                    'CATEGORY_NAME' => $request->input('categoryName'),
-                    'DESCRIPTION' => $request->input('description'),
-                    'CATEGORY_ORDER' => 1,
-                    'CREATED_BY' => $authDetail->ADMIN_ID,
-                    'CREATED_DATE' => date('Y-m-d H:i:s', strtotime('now'))
+                role::insert([
+                    'name' => $request->input('name'),
+                    'link' => $request->input('link'),
+                    'order' => 1,
+                    'created_by_id' => $authDetail->ADMIN_ID,
                 ]);
 
                 return response()->json([
-                    "action" => "addCategory",
+                    "action" => "addRole",
                     "error" => 0,
                     "errorCode" => 100,
-                    "message" => 'Category added successfully',
-                    "status" => "failure",
+                    "message" => 'Role added successfully',
+                    "status" => "success",
                 ]);
             }
         } catch (\Exception $e) {
             return response()->json([
-                "action" => "addCategory",
+                "action" => "addRole",
                 "error" => 1,
                 "errorCode" => 505,
                 "msg" => $e->getMessage(),
@@ -115,9 +111,10 @@ class CategoryController extends Controller
     {
         try {
             $validationArr = array(
-                'categoryId' => 'required|string',
-                'categoryName' => 'required|string',
-                'categoryDescription' => 'required|string'
+                'id' => 'required|string',
+                'name' => 'required|string',
+                'order' => 'required|string',
+                 'link' => 'required|string'
             );
 
             $messageArr = [];
@@ -126,29 +123,29 @@ class CategoryController extends Controller
             if ($validator->fails()) {
                 $errors = $validator->errors();
                 return response()->json([
-                    "action" => "updateCategory",
+                    "action" => "updateRole",
                     "error" => 1,
                     "errorCode" => 104,
                     "message" => $errors->first(),
                     "status" => "failure",
                 ]);
             } else {
-                Categories::where('CATEGORY_ID', $request->input('categoryId'))->update([
-                    'CATEGORY_NAME' => $request->input('categoryName'),
-                    'DESCRIPTION' => $request->input('description'),
+                role::where('id', $request->input('id'))->update([
+                    'name' => $request->input('name'),
+                    'link' => $request->input('link'),
                 ]);
 
                 return response()->json([
-                    "action" => "updateCategory",
+                    "action" => "updateRole",
                     "error" => 0,
                     "errorCode" => 100,
-                    "message" => 'Category updated successfully',
-                    "status" => "failure",
+                    "message" => 'Role updated successfully',
+                    "status" => "success",
                 ]);
             }
         } catch (\Exception $e) {
             return response()->json([
-                "action" => "updateCategory",
+                "action" => "updateRole",
                 "error" => 1,
                 "errorCode" => 505,
                 "msg" => "The Server Encountered a Internal Error",
