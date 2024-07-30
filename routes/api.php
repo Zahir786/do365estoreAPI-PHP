@@ -31,6 +31,7 @@ Route::post('/getCategories', ['middleware' => ['maintenance', 'sessionMaintenan
 Route::post('/addCategory', ['middleware' => ['maintenance', 'sessionMaintenance'], 'uses' => 'CategoryController@add']);
 Route::post('/updateCategory', ['middleware' => ['maintenance', 'sessionMaintenance'], 'uses' => 'CategoryController@update']);
 
+
 //Role
 Route::post('/getRole', ['middleware' => ['maintenance'], 'uses' => 'RoleController@list']);
 Route::post('/addRole', ['middleware' => ['maintenance'], 'uses' => 'RoleController@add']);
